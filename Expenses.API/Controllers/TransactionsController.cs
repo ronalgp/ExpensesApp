@@ -1,19 +1,29 @@
-﻿using Expenses.API.Data;
+﻿using System.Security.Claims;
 using Expenses.API.Data.Services;
 using Expenses.API.DTO;
-using Expenses.API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Expenses.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TransactionsController(ITransactionsService transactionsService) : ControllerBase
     {
         [HttpGet("All")]
         public IActionResult GetAllTransaction()
         {
-            var transactions = transactionsService.GetAll();
+            var userNameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userNameIdentifierClaim))
+            {
+                return BadRequest("Could not get the user id");
+            }
+            if (!int.TryParse(userNameIdentifierClaim, out int userId))
+            {
+                return BadRequest("User id is not valid");
+            }
+            var transactions = transactionsService.GetAll(userId);
             if (transactions == null || !transactions.Any())
             {
                 return NotFound("No transactions found");
@@ -43,7 +53,16 @@ namespace Expenses.API.Controllers
             {
                 return BadRequest("Invalid transaction data");
             }
-            transactionsService.Add(postTransactionDto);
+            var userNameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userNameIdentifierClaim))
+            {
+                return BadRequest("Could not get the user id");
+            }
+            if (!int.TryParse(userNameIdentifierClaim, out int userId))
+            {
+                return BadRequest("User id is not valid");
+            }
+            transactionsService.Add(postTransactionDto, userId);
             return Ok();
         }
 

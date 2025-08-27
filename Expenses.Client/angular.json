@@ -16,6 +16,18 @@
         },
         "@schematics/angular:interface": {
           "path": "src/models"
+        },
+        "@schematics/angular:class": {
+          "skipTests": true,
+          "path": "src/models"
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true,
+          "path": "src/guards"
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true,
+          "path": "src/interceptors"
         }
       },
       "root": "",
